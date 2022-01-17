@@ -5,7 +5,7 @@ const socket = new WebSocket(`ws://${window.location.host}`); // socket = connne
 
 function makeMessage(type, payload) {
     const msg = { type, payload }; // object
-    return JSON.stringify(msg); // make object into string
+    return JSON.stringify(msg); // make JSobject into string
 }
 
 //메세지== 이벤트 받기
@@ -34,6 +34,7 @@ function handleNickSubmit(event) {
     event.preventDefault();
     const input = nickForm.querySelector("input");
     socket.send(makeMessage("nickname", input.value));
+    input.value = "";
 }
 
 messageForm.addEventListener("submit", handleSubmit);
