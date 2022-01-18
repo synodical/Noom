@@ -1,5 +1,6 @@
 import http from "http";
-import { WebSocketServer } from 'ws';
+//import { WebSocketServer } from 'ws';
+import SocketIO from "socket.io";
 import express from "express";
 const app = express();
 app.set("view engine", "pug");
@@ -10,9 +11,21 @@ app.get("/*", (req, res) => res.redirect("/"));
 
 const handleListen = () => console.log(`Listening on http://localhost:3000/`);
 
-const server = http.createServer(app); // http server
-const wss = new WebSocketServer({ server });
+const httpServer = http.createServer(app); // http server
+const wsServer = SocketIO(httpServer);
 
+wsServer.on("connection", (socket) => {
+    socket.on("enter_room", (msg, done) => {
+        console.log(msg);
+        setTimeout(() => {
+            done(); // server가 백엔드에서 함수 호출, 프론트엔드(app.js)에서 함수 실행
+        }, 10000);
+    });
+});
+
+//const wss = new WebSocketServer({ server });
+
+/*
 const sockets = [];
 
 wss.on("connection", (socket) => { // socket means connected browser
@@ -33,7 +46,7 @@ wss.on("connection", (socket) => { // socket means connected browser
         }
     });
 }); // socket이 어느상태인지 알기쉽다
-
-server.listen(3000, handleListen);
+*/
+httpServer.listen(3000, handleListen);
 
 
