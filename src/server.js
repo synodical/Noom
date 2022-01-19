@@ -15,11 +15,13 @@ const httpServer = http.createServer(app); // http server
 const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", (socket) => {
-    socket.on("enter_room", (msg, done) => {
-        console.log(msg);
-        setTimeout(() => {
-            done(); // server가 백엔드에서 함수 호출, 프론트엔드(app.js)에서 함수 실행
-        }, 10000);
+    socket.onAny((event) => {
+        console.log(`Socket Event: ${event}`);
+    });
+    socket.on("enter_room", (roomName, done) => { // emit과 on은 same name
+        socket.join(roomName);
+        done();
+        socket.to(roomName).emit("Welcome");
     });
 });
 
@@ -33,8 +35,8 @@ wss.on("connection", (socket) => { // socket means connected browser
     socket["nickname"] = "Anonymous";
     console.log("Connected to browser");
     socket.on("close", () => console.log("Disconnected from the browser"));
-    socket.on("message", (msg) => { // FE로부터 도착하면 user에게 보냄
-        const message = JSON.parse(msg); // turns string into JS obj
+    socket.on("message", (roomName) => { // FE로부터 도착하면 user에게 보냄
+        const message = JSON.parse(roomName); // turns string into JS obj
         switch (message.type) {
             case "new_message":
                 sockets.forEach((aSocket) =>
